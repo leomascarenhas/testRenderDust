@@ -2,49 +2,43 @@
 
 
 var fs = require('fs');
+var makara = require('makara');
+var path = require('path');
+var freshy = require('freshy');
+var dust = freshy.freshy('dustjs-linkedin');
+var properties = require ("properties");
 
 var UserService = function () {};
 
-UserService.prototype.testRender = function (callback) {
-    var dust = require('dustjs-linkedin');
-    var helper = require('dust-usecontent-helper');
-    var messagehelper = require('dust-message-helper');
+require('dust-makara-helpers').registerWith(dust, {
+    enableMetadata: false,
+    autoloadTemplateContent: false,
+    loader: function (context, bundle, cb) {
+        cb(null, context.get('userBundle'));
+    }
+});
 
-    // The user object has a language defined,
-    // so the generated content should respect this.
-    // ex.: {name: 'Leo', locale: 'pt-BR'}
+UserService.prototype.testRender = function (user, callback) {
+    var localeArr = user.locale.split("-");
+    var lang = localeArr[0];
+    var country = localeArr[1];
+    var file = path.resolve(__dirname, '../locales/'+country+'/'+lang+'/default.properties');
 
-    helper(function (context, bundleName, cb) {
-        console.log('context: ' + context);
-        console.log('bundleName: ' + bundleName);
-        cb(null, {hello: "world"});
+    properties.parse(file, { path: true }, function (err, jsonBundle) {
+        if (err)
+          callback(err);
 
-    }).registerWith(dust);
-    messagehelper.registerWith(dust);
-
-    fs.readFile('./public/templates/users/welcome.dust', 'utf8', function (err, src) {
-
-        if (err) {
-            return callback(err);
-        }
-
-        console.log('\n'+src);
-
-        //var compiledTemplate = dust.compile(src, 'welcome');
-        //dust.loadSource(compiledTemplate);
-
-        dust.renderSource(src, dust.context({
-            intl: { locales: 'en-US' },
-            user: { name: 'Leonardo' },
-            templateName: 'welcome'
-        }), function(err, out) {
-            console.log('>>>>>> err: ' + err);
-            console.log('>>>>>> out: ' + out);
+        var src = fs.readFileSync(path.resolve(__dirname, '../public/templates/users/welcome.dust')).toString();
+        dust.loadSource(dust.compile(src, 'welcome'));
+        dust.render('welcome', {
+            app: 'WelcomeApp',
+            templateName: 'welcome',
+            locale: user.locale,
+            userName: user.name,
+            userBundle: jsonBundle
+        }, function(err, out) {
+            callback(null, out);
         });
-
-        // Send an e-mail to the user
-
-        callback(null);
     });
 };
 

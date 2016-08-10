@@ -20,6 +20,7 @@
     "dustjs-linkedin": "^2.7.3",
     "eslint": "^1.10.3",
     "express": "^4.12.2",
+    "freshy": "^1.0.2",
     "kraken-js": "^2.0.0",
     "makara": "^2.0.3",
     "requirejs": "^2.2.0"

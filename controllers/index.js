@@ -14,9 +14,28 @@ module.exports = function (router) {
     });
 
     router.get('/test', function (req, res) {
-        console.log('Controller...');
-        UserService.testRender(function(err) {
-            console.log('Err? ' + err);
+        var usUser = {
+            email: 'james@localhost',
+            locale: 'en-US',
+            name: 'James'
+        }
+        var brUser = {
+            email: 'leonardo@localhost',
+            locale: 'pt-BR',
+            name: 'Leonardo'
+        }
+
+        var content = '';
+        UserService.testRender(usUser, function(err, html) {
+            content += html;
+            console.log(html);
+
+            UserService.testRender(brUser, function(err, html) {
+                content += html;
+                console.log(html);
+
+                res.send(content);
+            });
         });
     });
 

@@ -1,5 +1,4 @@
-{@useContent bundle="default.properties"}
-<h1>Fixed title!!!</h1>
-<h3>{@message key="actions" /}</h3>
-<p>{hello},<br/>
+{@useContent bundle=""}
+<h3>{@message type="content" key="welcome_title"/} to {app}</h3>
+<p>{@message type="content" key="welcome_hello"/} {userName}<br/>
 {/useContent}
